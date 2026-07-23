@@ -1420,7 +1420,11 @@ _sanitize_value() {
 # Map-Parser: read var_* from file into _VARS_IN associative array
 # Note: Main _load_vars_file() with full validation is defined in default_var_settings section
 # This simplified version is used specifically for diff operations via _VARS_IN array
-declare -A _VARS_IN
+# -g is required: this file is sourced from inside a function (build.func's
+# _cs_source_func), so a plain `declare -A` would create a function-local that
+# vanishes after sourcing — later assignments then hit an *indexed* array whose
+# subscript gets arithmetic-evaluated, crashing on values like "collection;tracker".
+declare -gA _VARS_IN
 _load_vars_file_to_map() {
   local file="$1"
   [ -f "$file" ] || return 0
